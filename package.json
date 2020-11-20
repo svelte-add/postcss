@@ -18,8 +18,8 @@
     },
     "bugs": "https://github.com/babichjacob/svelte-add-postcss/issues",
     "homepage": "https://github.com/babichjacob/svelte-add-postcss",
-    "preset": "src/preset.js",
+    "preset": "preset.ts",
     "devDependencies": {
-        "use-preset": "^0.1.26"
+        "use-preset": "^0.2.5"
     }
 }
