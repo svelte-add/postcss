@@ -25,6 +25,8 @@ After the preset runs,
 
 * All your CSS will be minified for production with CSSNano.
 
+* You can apply *another* [Svelte Adder](https://github.com/babichjacob/svelte-adders) to your project for more functionality. Specifically, check out [svelte-add-tailwindcss](https://github.com/babichjacob/svelte-add-tailwindcss)
+
 ## 😵 Help! I have a question
 [Create an issue](https://github.com/babichjacob/svelte-add-postcss/issues/new) and I'll try to help.
 
