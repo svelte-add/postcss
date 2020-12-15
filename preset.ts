@@ -38,7 +38,7 @@ Preset.edit(["svelte.config.js"]).update((match) => {
 		result = result.replace("preprocess: sveltePreprocess()", preprocessor);
 	} else {
 		result = `const sveltePreprocess = require` + `("svelte-preprocess");\n${result}`;
-		result = result.replace("adapter:", `${preprocessor},\n\tadapter:`);
+		result = result.replace("module.exports = {", `module.exports = {\n\t${preprocessor},`);
 	}
 
 	return result;
