@@ -16,6 +16,11 @@ Once that is set up, run this command in your project directory to set up PostCS
 npx use-preset babichjacob/svelte-add-postcss --no-ssh
 ```
 
+Then ensure your dependencies are up to date:
+```sh
+pnpm update  # If you don't have pnpm, just get it already (and I don't know the npm equivalent of this command)
+```
+
 After the preset runs,
 * You can write PostCSS syntax in the `style` blocks in Svelte files.
 
