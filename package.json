@@ -1,5 +1,5 @@
 {
-    "name": "svelte-add-postcss",
+    "name": "svelte-add/postcss",
     "private": true,
     "version": "2020.12.16",
     "description": "A command to add and PostCSS to your SvelteKit project",
@@ -14,10 +14,10 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/babichjacob/svelte-add-postcss.git"
+        "url": "https://github.com/svelte-add/postcss.git"
     },
-    "bugs": "https://github.com/babichjacob/svelte-add-postcss/issues",
-    "homepage": "https://github.com/babichjacob/svelte-add-postcss",
+    "bugs": "https://github.com/svelte-add/postcss/issues",
+    "homepage": "https://github.com/svelte-add/postcss",
     "preset": "preset.ts",
     "devDependencies": {
         "use-preset": "^0.2.11"
