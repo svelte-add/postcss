@@ -13,7 +13,7 @@ npm init svelte@next
 
 Once that is set up, run this command in your project directory to set up PostCSS:
 ```sh
-npx use-preset svelte-add/postcss --no-ssh
+npx apply svelte-add/postcss # --no-ssh
 ```
 
 Then ensure your dependencies are up to date:
