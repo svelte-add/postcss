@@ -9,14 +9,7 @@ const preprocessor = `preprocess: [
 		}),
 	]`;
 
-const snowpackSveltePlugin = `[
-			"@snowpack/plugin-svelte",
-			{
-				compilerOptions: {
-					hydratable: true
-				}
-			}
-		],
+const snowpackSveltePlugin = `...require("@sveltejs/snowpack-config").plugins,
 	`;
 
 const snowpackPostcssPlugin = `[
@@ -34,7 +27,7 @@ const addSnowpackPlugin = (otherPlugins) => `plugins: [
 		${otherPlugins}
 	]`;
 
-Preset.setName("svelte-add-postcss");
+Preset.setName("svelte-add/postcss");
 
 Preset.extract().withTitle("Adding PostCSS config, global PostCSS stylesheet, and making $layout use it");
 
