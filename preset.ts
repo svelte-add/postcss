@@ -62,7 +62,7 @@ Preset.edit(["snowpack.config.js"]).update((content) => {
 	let result = content;
 
 	if (content.includes("plugins:")) {
-		const matchPlugins = /plugins:[\s\n]\[[\s\n]*((?:.|\n)+)[\s\n]*\]/;
+		const matchPlugins = /plugins:[\s\n]\[[\s\n]*((?:.|\n)+)[\s\n]*\]/m;
 		result = result.replace(matchPlugins, (_match, otherPlugins) => {
 			if (otherPlugins.includes("@snowpack/plugin-svelte")) return addSnowpackPlugin(otherPlugins);
 			return addSnowpackPlugin(`${snowpackSveltePlugin}\n${otherPlugins}`);
