@@ -1,13 +1,15 @@
 import { Preset } from "apply";
 
-const preprocessor = `preprocess: [
-		sveltePreprocess({
+const newPreprocessor = `sveltePreprocess({
 			defaults: {
 				style: "postcss",
 			},
 			postcss: true
-		}),
-	]`;
+		})`
+
+const addPreprocessor = (otherPreprocessors) => `preprocess: [
+		${newPreprocessor},
+		${otherPreprocessors}]`;
 
 const snowpackSveltePlugin = `...require("@sveltejs/snowpack-config").plugins,
 	`;
@@ -48,12 +50,17 @@ Preset.editJson("package.json").merge({
 Preset.edit(["svelte.config.js"]).update((content) => {
 	let result = content;
 
-	if (content.includes("preprocess:")) {
-		result = result.replace("preprocess: sveltePreprocess()", preprocessor);
-	} else {
-		result = `const sveltePreprocess = require` + `("svelte-preprocess");\n${result}`;
-		result = result.replace("module.exports = {", `module.exports = {\n\t${preprocessor},`);
-	}
+	const matchSveltePreprocess = /sveltePreprocess\((.*)\)/m;
+	result = result.replace(matchSveltePreprocess, (_match, _oldOptions) => `[${newPreprocessor}]`);
+
+	const matchPreprocessors = /preprocess:[\s\n]\[[\s\n]*((?:.|\n)+)[\s\n]*\]/m;
+	result = result.replace(matchPreprocessors, (_match, otherPreprocessors) => {
+		if (otherPreprocessors.includes("sveltePreprocess")) return addPreprocessor("");
+		return addPreprocessor(otherPreprocessors);
+	});
+
+	if (!result.includes("svelte-preprocess")) result = `const sveltePreprocess = require` + `("svelte-preprocess");\n${result}`;
+	if (!result.includes("sveltePreprocess(")) result = result.replace("module.exports = {", `module.exports = {\n\t${addPreprocessor("")},`);
 
 	return result;
 }).withTitle("Setting up Svelte preprocessor");
@@ -64,7 +71,7 @@ Preset.edit(["snowpack.config.js"]).update((content) => {
 	if (content.includes("plugins:")) {
 		const matchPlugins = /plugins:[\s\n]\[[\s\n]*((?:.|\n)+)[\s\n]*\]/m;
 		result = result.replace(matchPlugins, (_match, otherPlugins) => {
-			if (otherPlugins.includes("@snowpack/plugin-svelte")) return addSnowpackPlugin(otherPlugins);
+			if (otherPlugins.includes("@snowpack/plugin-svelte") || otherPlugins.includes("@sveltejs/snowpack-config")) return addSnowpackPlugin(otherPlugins);
 			return addSnowpackPlugin(`${snowpackSveltePlugin}\n${otherPlugins}`);
 		});
 	} else {
