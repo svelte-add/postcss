@@ -11,9 +11,6 @@ const addPreprocessor = (otherPreprocessors) => `preprocess: [
 		${newPreprocessor},
 		${otherPreprocessors}]`;
 
-const snowpackSveltePlugin = `...require("@sveltejs/snowpack-config").plugins,
-	`;
-
 const snowpackPostcssPlugin = `[
 			'@snowpack/plugin-build-script',
 			{
@@ -42,12 +39,12 @@ Preset.editJson("package.json").merge({
 		"postcss": "^8.2.1",
 		"postcss-load-config": "^3.0.0",
 		"postcss-cli": "^8.3.1",
-		"snowpack": "next",
+		"snowpack": "^3.0.10",
 		"svelte-preprocess": "^4.6.1",
 	},
 }).withTitle("Adding needed dependencies");
 
-Preset.edit(["svelte.config.js"]).update((content) => {
+Preset.edit(["svelte.config.cjs"]).update((content) => {
 	let result = content;
 
 	const matchSveltePreprocess = /sveltePreprocess\((.*)\)/m;
@@ -65,17 +62,14 @@ Preset.edit(["svelte.config.js"]).update((content) => {
 	return result;
 }).withTitle("Setting up Svelte preprocessor");
 
-Preset.edit(["snowpack.config.js"]).update((content) => {
+Preset.edit(["snowpack.config.cjs"]).update((content) => {
 	let result = content;
 
 	if (content.includes("plugins:")) {
 		const matchPlugins = /plugins:[\s\n]\[[\s\n]*((?:.|\n)+)[\s\n]*\]/m;
 		result = result.replace(matchPlugins, (_match, otherPlugins) => {
-			if (otherPlugins.includes("@snowpack/plugin-svelte") || otherPlugins.includes("@sveltejs/snowpack-config")) return addSnowpackPlugin(otherPlugins);
-			return addSnowpackPlugin(`${snowpackSveltePlugin}\n${otherPlugins}`);
+			return addSnowpackPlugin(otherPlugins);
 		});
-	} else {
-		result = result.replace("extends:", `${addSnowpackPlugin(snowpackSveltePlugin)},\n\textends:`);
 	}
 
 	return result;
