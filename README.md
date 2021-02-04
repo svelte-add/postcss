@@ -16,11 +16,6 @@ Once that is set up, run this command in your project directory to set up PostCS
 npx apply svelte-add/postcss # --no-ssh
 ```
 
-Then ensure your dependencies are up to date:
-```sh
-pnpm update  # If you don't have pnpm, just get it already (and I don't know the npm equivalent of this command)
-```
-
 After the preset runs,
 * You can write PostCSS syntax in the `style` blocks in Svelte files.
 
@@ -29,6 +24,8 @@ After the preset runs,
   This is your global stylesheet because it will be active on every page of your site.
 
 * All your CSS will be minified for production with CSSNano.
+
+* You can install more [PostCSS plugins](https://github.com/postcss/postcss/blob/main/docs/plugins.md) and configure them in the `postcss.config.cjs` file.
 
 * You can apply *another* [Svelte Adder](https://github.com/svelte-add/svelte-adders) to your project for more functionality. Specifically, check out [svelte-add/tailwindcss](https://github.com/svelte-add/tailwindcss).
 
