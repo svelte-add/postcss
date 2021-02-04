@@ -72,6 +72,9 @@ Preset.edit(["snowpack.config.cjs"]).update((content) => {
 		});
 	}
 
+
+	if (!result.includes("plugins:")) result = result.replace("module.exports = {", `module.exports = {\n\t${addSnowpackPlugin("")},`);
+
 	return result;
 }).withTitle("Setting up global PostCSS builder");
 
