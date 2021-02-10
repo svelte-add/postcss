@@ -56,7 +56,7 @@ Preset.edit(["svelte.config.cjs"]).update((content) => {
 		return addPreprocessor(otherPreprocessors);
 	});
 
-	if (!result.includes("svelte-preprocess")) result = `const sveltePreprocess = require` + `("svelte-preprocess");\n${result}`;
+	if (!result.includes("svelte-preprocess")) result = `const sveltePreprocess = require("svelte-preprocess");\n${result}`;
 	if (!result.includes("sveltePreprocess(")) result = result.replace("module.exports = {", `module.exports = {\n\t${addPreprocessor("")},`);
 
 	return result;
