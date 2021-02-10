@@ -32,15 +32,15 @@ Preset.extract().withTitle("Adding PostCSS config, global PostCSS stylesheet, an
 
 Preset.editJson("package.json").merge({
 	devDependencies: {
-		"@snowpack/plugin-build-script": "^2.0.11",
-		"@snowpack/plugin-svelte": "^3.4.0",
-		"autoprefixer": "^10.1.0",
+		"@snowpack/plugin-build-script": "^2.1.0",
+		"@snowpack/plugin-svelte": "^3.5.2",
+		"autoprefixer": "^10.2.4",
 		"cssnano": "^4.1.10",
-		"postcss": "^8.2.1",
-		"postcss-load-config": "^3.0.0",
+		"postcss": "^8.2.5",
+		"postcss-load-config": "^3.0.1",
 		"postcss-cli": "^8.3.1",
-		"snowpack": "^3.0.10",
-		"svelte-preprocess": "^4.6.1",
+		"snowpack": "^3.0.11",
+		"svelte-preprocess": "^4.6.6",
 	},
 }).withTitle("Adding needed dependencies");
 
