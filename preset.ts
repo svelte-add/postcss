@@ -50,7 +50,7 @@ Preset.edit(["svelte.config.cjs"]).update((content) => {
 	const matchSveltePreprocess = /sveltePreprocess\((.*)\)/m;
 	result = result.replace(matchSveltePreprocess, (_match, _oldOptions) => `[${newPreprocessor}]`);
 
-	const matchPreprocessors = /preprocess:[\s\n]\[[\s\n]*((?:.|\n)+)[\s\n]*\]/m;
+	const matchPreprocessors = /preprocess:[\s\r\n]\[[\s\r\n]*((?:.|\r|\n)+)[\s\r\n]*\]/m;
 	result = result.replace(matchPreprocessors, (_match, otherPreprocessors) => {
 		if (otherPreprocessors.includes("sveltePreprocess")) return addPreprocessor("");
 		return addPreprocessor(otherPreprocessors);
@@ -66,7 +66,7 @@ Preset.edit(["snowpack.config.cjs"]).update((content) => {
 	let result = content;
 
 	if (content.includes("plugins:")) {
-		const matchPlugins = /plugins:[\s\n]\[[\s\n]*((?:.|\n)+)[\s\n]*\]/m;
+		const matchPlugins = /plugins:[\s\r\n]\[[\s\r\n]*((?:.|\r|\n)+)[\s\r\n]*\]/m;
 		result = result.replace(matchPlugins, (_match, otherPlugins) => {
 			return addSnowpackPlugin(otherPlugins);
 		});
