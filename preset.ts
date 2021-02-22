@@ -62,6 +62,22 @@ Preset.edit(["svelte.config.cjs"]).update((content) => {
 	return result;
 }).withTitle("Setting up Svelte preprocessor");
 
+
+
+Preset.group((preset) => {
+	preset.edit(["src/routes/index.svelte"]).update((match) => {
+		let result = match;
+		result = result.replace(`<style>`, `<style lang="postcss">`);
+		return result;
+	});
+
+	preset.edit(["src/components/Counter.svelte"]).update((match) => {
+		let result = match;
+		result = result.replace(`<style>`, `<style lang="postcss">`);
+		return result;
+	});
+}).withTitle("Marking <style> blocks as explicitly PostCSS");
+
 Preset.edit(["snowpack.config.cjs"]).update((content) => {
 	let result = content;
 
