@@ -1,5 +1,5 @@
 <script>
-	import "./_global.pcss";
+	import "__PLACEHOLDER__GLOBAL_CSS__";
 </script>
 
 <slot />
