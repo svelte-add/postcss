@@ -7,8 +7,6 @@ This is an **experimental** command to run to add PostCSS to your SvelteKit proj
 You must start with a fresh copy of the official SvelteKit template, which is currently created by running this command:
 ```sh
 npm init svelte@next
-# By the way, please listen to its warnings that SvelteKit is an alpha project
-# https://svelte.dev/blog/whats-the-deal-with-sveltekit#When_can_I_start_using_it
 ```
 
 Once that is set up, run this command in your project directory to set up PostCSS:
@@ -19,7 +17,7 @@ npx apply svelte-add/postcss # --no-ssh
 After the preset runs,
 * You can write PostCSS syntax in the `style` blocks in Svelte files.
 
-* You can write PostCSS syntax in the `src/routes/_global.pcss` file.
+* You can write PostCSS syntax in the `src/global.css` file.
   
   This is your global stylesheet because it will be active on every page of your site.
 
