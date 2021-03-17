@@ -35,49 +35,76 @@ const addSnowpackPlugin = (otherPlugins) => `plugins: [
 
 Preset.setName("svelte-add/postcss");
 
+const ROLLUP = "rollup"; // Not currently supported or inferred
+const ROLLUP_SAPPER = "rollup-sapper"; // Not currently supported or inferred
+const SNOWPACK = "snowpack"; // Not tested
+const SNOWPACK_SVELTEKIT = "snowpack-sveltekit";
+const WEBPACK = "webpack"; // Not currently supported or inferred
+const WEBPACK_SAPPER = "webpack-sapper"; // Not currently supported or inferred
 const VITE = "vite";
-const SNOWPACK = "snowpack";
-const BUILD_TOOL = "buildTool";
-Preset.option(BUILD_TOOL, VITE);
+const VITE_SVELTEKIT = "vite-sveltekit";
+const UNKNOWN_SETUP = "unknown";
+const SETUP = "setup";
 
 const EXCLUDE_EXAMPLES = "excludeExamples"
 Preset.option(EXCLUDE_EXAMPLES, false);
 
+Preset.hook((preset) => { preset.context[SETUP] = UNKNOWN_SETUP }).withoutTitle();
+Preset.edit("package.json").update((content, preset) => {
+	const pkg = JSON.parse(content);
+
+	const dependencies = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
+
+	if (dependencies["@sveltejs/kit"]) {
+		if (dependencies["vite"]) preset.context[SETUP] = VITE_SVELTEKIT;
+		else if (dependencies["snowpack"]) preset.context[SETUP] = SNOWPACK_SVELTEKIT;
+	} else if (dependencies["vite"]) {
+		preset.context[SETUP] = VITE;
+	} else if (dependencies["snowpack"]) {
+		preset.context[SETUP] = SNOWPACK;
+	}
+
+	return content;
+}).withoutTitle();
+
 Preset.extract("postcss.config.cjs").withTitle("Adding PostCSS config");
 Preset.group((preset) => {
-	preset.extract("src/routes/_global.pcss").ifOptionEquals(BUILD_TOOL, SNOWPACK);
-	preset.extract("src/global.css").ifOptionEquals(BUILD_TOOL, VITE);
+	preset.extract("src/routes/_global.pcss").if((preset) => [SNOWPACK_SVELTEKIT].includes(preset.context[SETUP]));
+	preset.extract("src/global.css").if((preset) => [VITE_SVELTEKIT, VITE].includes(preset.context[SETUP]));
 }).withTitle("Adding global PostCSS stylesheet");
 
 Preset.group((preset) => {
-	preset.extract("src/routes/$layout.svelte");
+	preset.extract("src/routes/$layout.svelte").if((preset) => [VITE_SVELTEKIT, SNOWPACK_SVELTEKIT].includes(preset.context[SETUP]));
 	const GLOBAL_CSS = "__PLACEHOLDER__GLOBAL_CSS__";
-	preset.edit(["src/routes/$layout.svelte"]).update((content) => content.replace(GLOBAL_CSS, "./_global.pcss")).ifOptionEquals(BUILD_TOOL, SNOWPACK);
-	preset.edit(["src/routes/$layout.svelte"]).update((content) => content.replace(GLOBAL_CSS, "../global.css")).ifOptionEquals(BUILD_TOOL, VITE);
-}).withTitle("Making $layout import the global stylesheet");
+	preset.edit("src/routes/$layout.svelte").update((content) => content.replace(GLOBAL_CSS, "./_global.pcss")).if((preset) => [SNOWPACK_SVELTEKIT].includes(preset.context[SETUP]));
+	preset.edit("src/routes/$layout.svelte").update((content) => content.replace(GLOBAL_CSS, "../global.css")).if((preset) => [VITE_SVELTEKIT].includes(preset.context[SETUP]));
+	preset.edit(["src/main.js", "src/main.ts"]).update((content) => {
+		return `import "./global.css"\n${content}`;	
+	}).if((preset) => [VITE].includes(preset.context[SETUP]));
+}).withTitle("Importing the global stylesheet");
 
 Preset.group((preset) => {
 	preset.editJson("package.json").merge({
 		devDependencies: {
 			"@snowpack/plugin-build-script": "^2.1.0",
 			"@snowpack/plugin-svelte": "^3.5.2",
+			"postcss-cli": "^8.3.1",
 			"snowpack": "^3.0.13",
 		},
-	}).ifOptionEquals(BUILD_TOOL, SNOWPACK);
+	}).if((preset) => [SNOWPACK_SVELTEKIT, SNOWPACK].includes(preset.context[SETUP]));
 
 	preset.editJson("package.json").merge({
 		devDependencies: {
 			"autoprefixer": "^10.2.5",
 			"cssnano": "^4.1.10",
 			"postcss": "^8.2.7",
-			"postcss-cli": "^8.3.1",
 			"postcss-load-config": "^3.0.1",
 			"svelte-preprocess": "^4.6.9",
 		},
 	});
 }).withTitle("Adding needed dependencies");
 
-Preset.edit(["snowpack.config.cjs"]).update((content) => {
+Preset.edit("snowpack.config.cjs").update((content) => {
 	let result = content;
 
 	if (content.includes("plugins:")) {
@@ -90,37 +117,34 @@ Preset.edit(["snowpack.config.cjs"]).update((content) => {
 	if (!result.includes("plugins:")) result = result.replace("module.exports = {", `module.exports = {\n\t${addSnowpackPlugin("")},`);
 
 	return result;
-}).withTitle("Setting up global PostCSS builder").ifOptionEquals(BUILD_TOOL, SNOWPACK);
-
-Preset.edit(["svelte.config.cjs"]).update((content) => {
-	let result = content;
-
-	const matchSveltePreprocess = /sveltePreprocess\((.*)\)/m;
-	result = result.replace(matchSveltePreprocess, (_match, _oldOptions) => `[${newPreprocessor}]`);
-
-	const matchPreprocessors = /preprocess:[\s\r\n]\[[\s\r\n]*((?:.|\r|\n)+)[\s\r\n]*\]/m;
-	result = result.replace(matchPreprocessors, (_match, otherPreprocessors) => {
-		if (otherPreprocessors.includes("sveltePreprocess")) return addPreprocessor("");
-		return addPreprocessor(otherPreprocessors);
-	});
-
-	if (!result.includes("svelte-preprocess")) result = `const sveltePreprocess = require("svelte-preprocess");\n${result}`;
-	if (!result.includes("sveltePreprocess(")) result = result.replace("module.exports = {", `module.exports = {\n\t${addPreprocessor("")},`);
-
-	return result;
-}).withTitle("Setting up Svelte preprocessor");
-
+}).withTitle("Setting up global PostCSS builder").if((preset) => [SNOWPACK_SVELTEKIT].includes(preset.context[SETUP]));
 
 Preset.group((preset) => {
-	preset.edit(["src/routes/index.svelte"]).update((match) => {
-		let result = match;
-		result = result.replace(`<style>`, `<style style="css" lang="postcss">`);
-		return result;
-	});
+	preset.extract("svelte.config.cjs").withTitle("Adding `svelte.config.cjs`").if((preset) => [VITE].includes(preset.context[SETUP]));
 
-	preset.edit(["src/lib/Counter.svelte"]).update((match) => {
+	preset.edit("svelte.config.cjs").update((content) => {
+		let result = content;
+
+		const matchSveltePreprocess = /sveltePreprocess\((.*)\)/m;
+		result = result.replace(matchSveltePreprocess, (_match, _oldOptions) => `[${newPreprocessor}]`);
+
+		const matchPreprocessors = /preprocess:[\s\r\n]\[[\s\r\n]*((?:.|\r|\n)+)[\s\r\n]*\]/m;
+		result = result.replace(matchPreprocessors, (_match, otherPreprocessors) => {
+			if (otherPreprocessors.includes("sveltePreprocess")) return addPreprocessor("");
+			return addPreprocessor(otherPreprocessors);
+		});
+
+		if (!result.includes("svelte-preprocess")) result = `const sveltePreprocess = require("svelte-preprocess");\n${result}`;
+		if (!result.includes("sveltePreprocess(")) result = result.replace("module.exports = {", `module.exports = {\n\t${addPreprocessor("")},`);
+
+		return result;
+	}).withTitle("Configuring it in svelte.config.cjs")
+}).withTitle("Setting up Svelte preprocessor");
+
+Preset.group((preset) => {
+	preset.edit(["src/routes/index.svelte", "src/App.svelte", "src/lib/Counter.svelte"]).update((match) => {
 		let result = match;
-		result = result.replace(`<style>`, `<style style="css" lang="postcss">`);
+		result = result.replace(`<style>`, `<style style lang="postcss">`);
 		return result;
 	});
 }).withTitle("Marking <style> blocks as explicitly PostCSS").ifNotOption(EXCLUDE_EXAMPLES);
