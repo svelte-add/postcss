@@ -111,7 +111,7 @@ Preset.group((preset) => {
 		return result;
 	});
 
-	preset.edit(["src/components/Counter.svelte"]).update((match) => {
+	preset.edit(["src/lib/Counter.svelte"]).update((match) => {
 		let result = match;
 		result = result.replace(`<style>`, `<style lang="postcss">`);
 		return result;
