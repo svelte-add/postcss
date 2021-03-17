@@ -1,4 +1,4 @@
-import { Preset } from "apply";
+import { Preset, color } from "apply";
 
 const newPreprocessor = `sveltePreprocess({
 			defaults: {
@@ -115,4 +115,4 @@ Preset.group((preset) => {
 	});
 }).withTitle("Marking <style> blocks as explicitly PostCSS");
 
-Preset.installDependencies().ifUserApproves();
+Preset.instruct(`Run ${color.magenta("npm install")}, ${color.magenta("pnpm install")}, or ${color.magenta("yarn")} to install dependencies`);
