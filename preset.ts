@@ -7,9 +7,16 @@ const newPreprocessor = `sveltePreprocess({
 			postcss: true
 		})`
 
-const addPreprocessor = (otherPreprocessors) => `preprocess: [
-		${newPreprocessor},
-		${otherPreprocessors}]`;
+const addPreprocessor = (otherPreprocessors) => {
+	if (otherPreprocessors) {
+		// otherPreprocessors includes captured whitespace at the end.
+		// So, this will match the existing formatting, putting the closing ] 
+		// bracket on a new line only if it already was
+		return `preprocess: [\n\t\t${newPreprocessor},\n\t\t${otherPreprocessors}]`;
+	} else {
+		return `preprocess: [\n\t\t${newPreprocessor},\n\t]`;
+	}
+}
 
 const snowpackPostcssPlugin = `[
 			'@snowpack/plugin-build-script',
