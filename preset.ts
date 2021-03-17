@@ -107,13 +107,13 @@ Preset.edit(["svelte.config.cjs"]).update((content) => {
 Preset.group((preset) => {
 	preset.edit(["src/routes/index.svelte"]).update((match) => {
 		let result = match;
-		result = result.replace(`<style>`, `<style lang="postcss" style="css">`);
+		result = result.replace(`<style>`, `<style style="css" lang="postcss">`);
 		return result;
 	});
 
 	preset.edit(["src/lib/Counter.svelte"]).update((match) => {
 		let result = match;
-		result = result.replace(`<style>`, `<style lang="postcss" style="css">`);
+		result = result.replace(`<style>`, `<style style="css" lang="postcss">`);
 		return result;
 	});
 }).withTitle("Marking <style> blocks as explicitly PostCSS").ifNotOption(EXCLUDE_EXAMPLES);
