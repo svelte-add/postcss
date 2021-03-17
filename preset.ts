@@ -33,6 +33,9 @@ const SNOWPACK = "snowpack";
 const BUILD_TOOL = "buildTool";
 Preset.option(BUILD_TOOL, VITE);
 
+const EXCLUDE_EXAMPLES = "excludeExamples"
+Preset.option(EXCLUDE_EXAMPLES, false);
+
 Preset.extract("postcss.config.cjs").withTitle("Adding PostCSS config");
 Preset.group((preset) => {
 	preset.extract("src/routes/_global.pcss").ifOptionEquals(BUILD_TOOL, SNOWPACK);
@@ -113,6 +116,6 @@ Preset.group((preset) => {
 		result = result.replace(`<style>`, `<style lang="postcss">`);
 		return result;
 	});
-}).withTitle("Marking <style> blocks as explicitly PostCSS");
+}).withTitle("Marking <style> blocks as explicitly PostCSS").ifNotOption(EXCLUDE_EXAMPLES);
 
 Preset.instruct(`Run ${color.magenta("npm install")}, ${color.magenta("pnpm install")}, or ${color.magenta("yarn")} to install dependencies`);
