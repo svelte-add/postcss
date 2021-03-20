@@ -1,9 +1,9 @@
 <h1 align="center">🔺 Add PostCSS to Svelte</h1>
 
 ## ❓ What is this?
-This is an **experimental** command to run to add PostCSS to your SvelteKit project.
+This is an **experimental** command to run to add PostCSS to your SvelteKit project or Vite-powered Svelte app.
 
-## 🛠 Usage
+## 🧰 Adding to SvelteKit
 You must start with a fresh copy of the official SvelteKit template, which is currently created by running this command:
 ```sh
 npm init svelte@next
@@ -14,7 +14,19 @@ Once that is set up, run this command in your project directory to set up PostCS
 npx svelte-add postcss
 ```
 
-After the preset runs,
+## ⚡️ Adding to Vite
+You must start with a fresh copy of the official Vite-powered Svelte app template, which is currently created by running this command:
+```sh
+npm init @vitejs/app  # Choose svelte or svelte-ts
+```
+
+Once that is set up, run this command in your project directory to set up PostCSS:
+```sh
+npx svelte-add postcss
+```
+
+## 🛠 Usage
+After the adder runs,
 * You can write PostCSS syntax in the `style` blocks in Svelte files.
 
 * You can write PostCSS syntax in the `src/global.css` file.
