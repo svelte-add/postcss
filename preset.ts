@@ -70,16 +70,20 @@ Preset.edit("package.json").update((content, preset) => {
 Preset.extract("postcss.config.cjs").withTitle("Adding PostCSS config");
 Preset.group((preset) => {
 	preset.extract("src/routes/_global.pcss").if((preset) => [SNOWPACK_SVELTEKIT].includes(preset.context[SETUP]));
-	preset.extract("src/global.css").if((preset) => [VITE_SVELTEKIT, VITE].includes(preset.context[SETUP]));
+	preset.extract("src/global.postcss").if((preset) => [VITE].includes(preset.context[SETUP]));
+
+	preset.delete(["src/app.css"]).if((preset) => [VITE_SVELTEKIT].includes(preset.context[SETUP]));
+	preset.extract("src/app.postcss").if((preset) => [VITE_SVELTEKIT].includes(preset.context[SETUP]));
 }).withTitle("Adding global PostCSS stylesheet");
 
 Preset.group((preset) => {
-	preset.extract("src/routes/$layout.svelte").if((preset) => [VITE_SVELTEKIT, SNOWPACK_SVELTEKIT].includes(preset.context[SETUP]));
+	preset.extract("src/routes/$layout.svelte").whenConflict("skip").if((preset) => [VITE_SVELTEKIT, SNOWPACK_SVELTEKIT].includes(preset.context[SETUP]));
 	const GLOBAL_CSS = "__PLACEHOLDER__GLOBAL_CSS__";
+	const APP_CSS = "../app.css";
 	preset.edit("src/routes/$layout.svelte").update((content) => content.replace(GLOBAL_CSS, "./_global.pcss")).if((preset) => [SNOWPACK_SVELTEKIT].includes(preset.context[SETUP]));
-	preset.edit("src/routes/$layout.svelte").update((content) => content.replace(GLOBAL_CSS, "../global.css")).if((preset) => [VITE_SVELTEKIT].includes(preset.context[SETUP]));
+	preset.edit("src/routes/$layout.svelte").update((content) => content.replace(APP_CSS, "../app.postcss")).if((preset) => [VITE_SVELTEKIT].includes(preset.context[SETUP]));
 	preset.edit(["src/main.js", "src/main.ts"]).update((content) => {
-		return `import "./global.css"\n${content}`;	
+		return `import "./global.postcss"\n${content}`;	
 	}).if((preset) => [VITE].includes(preset.context[SETUP]));
 }).withTitle("Importing the global stylesheet");
 
