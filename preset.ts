@@ -91,9 +91,7 @@ Preset.group((preset) => {
 	preset.editJson("package.json").merge({
 		devDependencies: {
 			"@snowpack/plugin-build-script": "^2.1.0",
-			"@snowpack/plugin-svelte": "^3.5.2",
 			"postcss-cli": "^8.3.1",
-			"snowpack": "^3.0.13",
 		},
 	}).if((preset) => [SNOWPACK_SVELTEKIT, SNOWPACK].includes(preset.context[SETUP]));
 
@@ -101,9 +99,9 @@ Preset.group((preset) => {
 		devDependencies: {
 			"autoprefixer": "^10.2.5",
 			"cssnano": "^4.1.10",
-			"postcss": "^8.2.7",
+			"postcss": "^8.2.9",
 			"postcss-load-config": "^3.0.1",
-			"svelte-preprocess": "^4.6.9",
+			"svelte-preprocess": "^4.7.0",
 		},
 	});
 }).withTitle("Adding needed dependencies");
