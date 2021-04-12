@@ -98,8 +98,8 @@ Preset.group((preset) => {
 	preset.editJson("package.json").merge({
 		devDependencies: {
 			"autoprefixer": "^10.2.5",
-			"cssnano": "^4.1.10",
-			"postcss": "^8.2.9",
+			"cssnano": "^5.0.0",
+			"postcss": "^8.2.10",
 			"postcss-load-config": "^3.0.1",
 			"svelte-preprocess": "^4.7.0",
 		},
