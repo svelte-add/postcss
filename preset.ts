@@ -105,10 +105,10 @@ Preset.group((preset) => {
 	preset.editJson("package.json").merge({
 		devDependencies: {
 			"autoprefixer": "^10.2.5",
-			"cssnano": "^5.0.0",
+			"cssnano": "^5.0.1",
 			"postcss": "^8.2.10",
 			"postcss-load-config": "^3.0.1",
-			"svelte-preprocess": "^4.7.0",
+			"svelte-preprocess": "^4.7.1",
 		},
 	});
 }).withTitle("Adding needed dependencies");
