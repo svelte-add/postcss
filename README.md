@@ -27,7 +27,7 @@ npx svelte-add postcss
 
 ## 🛠 Usage
 After the adder runs,
-* You can write PostCSS syntax in the `style` blocks in Svelte files.
+* You can write PostCSS syntax in the `style lang="postcss"` blocks in Svelte files.
 
 * You can write PostCSS syntax in the `src/app.postcss` or `src/global.postcss` file.
   
