@@ -1,9 +1,6 @@
 import { Preset, color } from "apply";
 
 const newPreprocessor = `sveltePreprocess({
-			defaults: {
-				style: "postcss",
-			},
 			postcss: true
 		})`
 
