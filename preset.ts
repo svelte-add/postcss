@@ -1,6 +1,6 @@
 import { Preset, color } from "apply";
 
-const newPreprocessor = `sveltePreprocess({
+const newPreprocessor = `preprocess({
 			postcss: true
 		})`
 
@@ -131,17 +131,17 @@ Preset.group((preset) => {
 	preset.edit("svelte.config.cjs").update((content) => {
 		let result = content;
 
-		const matchEmptySveltePreprocess = /sveltePreprocess\(\)/m;
-		result = result.replace(matchEmptySveltePreprocess, (_match) => `[${newPreprocessor}]`);
+		const matchEmptyPreprocess = /preprocess\(\)/m;
+		result = result.replace(matchEmptyPreprocess, (_match) => `[${newPreprocessor}]`);
 
 		const matchPreprocessors = /preprocess:[\s\r\n]\[[\s\r\n]*((?:.|\r|\n)+)[\s\r\n]*\]/m;
 		result = result.replace(matchPreprocessors, (_match, otherPreprocessors) => {
-			if (otherPreprocessors.includes("sveltePreprocess")) return addPreprocessor("");
+			if (otherPreprocessors.includes("preprocess(")) return addPreprocessor("");
 			return addPreprocessor(otherPreprocessors);
 		});
 
-		if (!result.includes("svelte-preprocess")) result = `const sveltePreprocess = require("svelte-preprocess");\n${result}`;
-		if (!result.includes("sveltePreprocess(")) result = result.replace("module.exports = {", `module.exports = {\n\t${addPreprocessor("")},`);
+		if (!result.includes("svelte-preprocess")) result = `const preprocess = require("svelte-preprocess");\n${result}`;
+		if (!result.includes("preprocess(")) result = result.replace("module.exports = {", `module.exports = {\n\t${addPreprocessor("")},`);
 
 		return result;
 	}).withTitle("Configuring it in svelte.config.cjs")
