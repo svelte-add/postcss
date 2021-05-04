@@ -126,7 +126,7 @@ Preset.edit("snowpack.config.cjs").update((content) => {
 }).withTitle("Setting up global PostCSS builder").if((preset) => [SNOWPACK_SVELTEKIT].includes(preset.context[SETUP]));
 
 Preset.group((preset) => {
-	preset.extract("svelte.config.cjs").whenConflict("skip").withTitle("Adding `svelte.config.cjs`").if((preset) => [VITE].includes(preset.context[SETUP]));
+	preset.extract("svelte.config.js").whenConflict("skip").withTitle("Adding `svelte.config.js`").if((preset) => [VITE].includes(preset.context[SETUP]));
 
 	preset.edit("svelte.config.cjs").update((content) => {
 		let result = content;
@@ -144,7 +144,25 @@ Preset.group((preset) => {
 		if (!result.includes("preprocess(")) result = result.replace("module.exports = {", `module.exports = {\n\t${addPreprocessor("")},`);
 
 		return result;
-	}).withTitle("Configuring it in svelte.config.cjs")
+	}).withTitle("Configuring it in svelte.config.cjs (if it exists)");
+
+	preset.edit("svelte.config.js").update((content) => {
+		let result = content;
+
+		const matchEmptyPreprocess = /preprocess\(\)/m;
+		result = result.replace(matchEmptyPreprocess, (_match) => `[${newPreprocessor}]`);
+
+		const matchPreprocessors = /preprocess:[\s\r\n]\[[\s\r\n]*((?:.|\r|\n)+)[\s\r\n]*\]/m;
+		result = result.replace(matchPreprocessors, (_match, otherPreprocessors) => {
+			if (otherPreprocessors.includes("preprocess(")) return addPreprocessor("");
+			return addPreprocessor(otherPreprocessors);
+		});
+
+		if (!result.includes("svelte-preprocess")) result = `import preprocess from "svelte-preprocess";\n${result}`;
+		if (!result.includes("preprocess(")) result = result.replace("const config = {", `const config = {\n\t${addPreprocessor("")},`);
+
+		return result;
+	}).withTitle("Configuring it in svelte.config.js (if it exists)");
 }).withTitle("Setting up Svelte preprocessor");
 
 Preset.group((preset) => {
