@@ -126,7 +126,8 @@ Preset.edit("snowpack.config.cjs").update((content) => {
 }).withTitle("Setting up global PostCSS builder").if((preset) => [SNOWPACK_SVELTEKIT].includes(preset.context[SETUP]));
 
 Preset.group((preset) => {
-	preset.extract("svelte.config.js").whenConflict("skip").withTitle("Adding `svelte.config.js`").if((preset) => [VITE].includes(preset.context[SETUP]));
+	preset.extract("svelte.config.cjs").whenConflict("skip").withTitle("Adding `svelte.config.cjs`").if((preset) => [VITE].includes(preset.context[SETUP]));
+	preset.extract("svelte.config.js").whenConflict("skip").withTitle("Adding `svelte.config.js`").if((preset) => [VITE_SVELTEKIT].includes(preset.context[SETUP]));
 
 	preset.edit("svelte.config.cjs").update((content) => {
 		let result = content;
