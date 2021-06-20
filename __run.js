@@ -240,7 +240,7 @@ const updateSvelteConfig = (svelteConfigAst, cjs) => {
 }
 
 
-/** @type {import("../..").AdderRun<{}>} */
+/** @type {import("../../index.js").AdderRun<import("./__metadata.js").Options>} */
 export const run = async ({ environment, install, updateCss, updateJavaScript, updateSvelte }) => {
 	await updateJavaScript({
 		path: postcssConfigCjsPath,
