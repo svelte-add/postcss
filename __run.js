@@ -48,18 +48,18 @@ const updateSvelteConfig = (svelteConfigAst, cjs) => {
 				if (node.type !== "VariableDeclarator") return;
 
 				/** @type {import("estree").VariableDeclarator} */
-				const declarator = (node);
-				
+				// prettier-ignore
+				const declarator = (node)
+
 				if (declarator.id.type !== "Identifier") return;
 				const identifier = declarator.id;
-				
+
 				if (!declarator.init) return;
 				if (declarator.init.type !== "CallExpression") return;
 				const callExpression = declarator.init;
 
 				if (callExpression.callee.type !== "Identifier") return;
-				/** @type {import("estree").Identifier} */
-				const callee = (callExpression.callee);
+				const callee = callExpression.callee;
 
 				if (callee.name !== "require") return;
 
@@ -71,10 +71,11 @@ const updateSvelteConfig = (svelteConfigAst, cjs) => {
 				if (node.type !== "ImportDeclaration") return;
 
 				/** @type {import("estree").ImportDeclaration} */
-				const importDeclaration = (node);
-				
+				// prettier-ignore
+				const importDeclaration = (node)
+
 				if (importDeclaration.source.value !== "svelte-preprocess") return;
-				
+
 				for (const specifier of importDeclaration.specifiers) {
 					if (specifier.type === "ImportDefaultSpecifier") sveltePreprocessImportedAs = specifier.local.name;
 				}
@@ -111,7 +112,7 @@ const updateSvelteConfig = (svelteConfigAst, cjs) => {
 							},
 							optional: false,
 						},
-					}
+					},
 				],
 				kind: "const",
 			};
@@ -130,20 +131,20 @@ const updateSvelteConfig = (svelteConfigAst, cjs) => {
 						type: "ImportDefaultSpecifier",
 						local: {
 							type: "Identifier",
-							name: sveltePreprocessImportedAs
-						}
-					}
-				]
+							name: sveltePreprocessImportedAs,
+						},
+					},
+				],
 			};
 
 			svelteConfigAst.program.body.unshift(importSveltePreprocessAst);
 		}
 	}
-	
+
 	// Try to find the exported config object
 	/** @type {import("estree").ObjectExpression | undefined} */
 	const configObject = getConfigObject({ cjs, typeScriptEstree: svelteConfigAst });
-	
+
 	// Try to find preprocess config
 	/** @type {import("estree").Property | undefined} */
 	let preprocessConfig;
@@ -151,7 +152,7 @@ const updateSvelteConfig = (svelteConfigAst, cjs) => {
 		if (property.type !== "Property") continue;
 		if (property.key.type !== "Identifier") continue;
 		if (property.key.name !== "preprocess") continue;
-		
+
 		preprocessConfig = property;
 	}
 	// Or set it to svelte-preprocess() if it doesn't exist
@@ -175,7 +176,7 @@ const updateSvelteConfig = (svelteConfigAst, cjs) => {
 					name: sveltePreprocessImportedAs,
 				},
 				optional: false,
-			}
+			},
 		};
 		configObject.properties.push(preprocessConfig);
 	}
@@ -186,12 +187,13 @@ const updateSvelteConfig = (svelteConfigAst, cjs) => {
 			type: "ArrayExpression",
 			elements: [],
 		};
+		if (preprocessConfig.value.type !== "CallExpression") throw new TypeError("preprocess settings were expected to be a function call");
 		/** @type {import("estree").CallExpression} */
-		const preprocessConfigValue = (preprocessConfig.value);
+		const preprocessConfigValue = preprocessConfig.value;
 		array.elements.push(preprocessConfigValue);
 		preprocessConfig.value = array;
 	}
-	
+
 	// Add postcss: true to svelte-preprocess options
 	for (const element of preprocessConfig.value.elements) {
 		if (!element) continue;
@@ -205,40 +207,42 @@ const updateSvelteConfig = (svelteConfigAst, cjs) => {
 			const emptyObject = {
 				type: "ObjectExpression",
 				properties: [],
-			}
+			};
 
 			element.arguments.push(emptyObject);
 		}
 
+		if (element.arguments[0].type !== "ObjectExpression") throw new TypeError("that's an unexpected argument to svelte-preprocess");
 		/** @type {import("estree").ObjectExpression} */
-		const sveltePreprocessArgs = (element.arguments[0]);
+		const sveltePreprocessArgs = element.arguments[0];
 
 		/** @type {import("estree").ObjectExpression} */
 		const objPostcssTrue = {
 			type: "ObjectExpression",
-			properties: [{
-				computed: false,
-				key: {
-					type: "Literal",
-					value: "postcss",
+			properties: [
+				{
+					computed: false,
+					key: {
+						type: "Literal",
+						value: "postcss",
+					},
+					kind: "init",
+					type: "Property",
+					method: false,
+					shorthand: false,
+					value: {
+						type: "Literal",
+						value: true,
+					},
 				},
-				kind: "init",
-				type: "Property",
-				method: false,
-				shorthand: false,
-				value: {
-					type: "Literal",
-					value: true,
-				},
-			}]
-		}
+			],
+		};
 
-		sveltePreprocessArgs.properties.push(...objPostcssTrue.properties)
+		sveltePreprocessArgs.properties.push(...objPostcssTrue.properties);
 	}
 
 	return svelteConfigAst;
-}
-
+};
 
 /** @type {import("../../index.js").AdderRun<import("./__metadata.js").Options>} */
 export const run = async ({ environment, install, updateCss, updateJavaScript, updateSvelte }) => {
@@ -251,10 +255,10 @@ export const run = async ({ environment, install, updateCss, updateJavaScript, u
 
 			return {
 				typeScriptEstree,
-			}
-		}
+			};
+		},
 	});
-	
+
 	await updateJavaScript({
 		path: "/svelte.config.js",
 		async script({ exists, typeScriptEstree }) {
@@ -262,21 +266,21 @@ export const run = async ({ environment, install, updateCss, updateJavaScript, u
 
 			return {
 				typeScriptEstree: updateSvelteConfig(typeScriptEstree, false),
-			}
-		}
+			};
+		},
 	});
-	
+
 	await updateJavaScript({
 		path: "/svelte.config.cjs",
 		async script({ exists, typeScriptEstree }) {
 			if (!exists) {
 				if (environment.kit || environment.bundler !== "vite") return { exists: false };
 			}
-			
+
 			return {
 				typeScriptEstree: updateSvelteConfig(typeScriptEstree, true),
-			}
-		}
+			};
+		},
 	});
 
 	await updateCss({
@@ -287,20 +291,22 @@ export const run = async ({ environment, install, updateCss, updateJavaScript, u
 				async style({ postcss: appPostcss }) {
 					appPostcss.prepend(appCss);
 
-					appPostcss.prepend(new Comment({
-						text: stylesHint,
-					}));
+					appPostcss.prepend(
+						new Comment({
+							text: stylesHint,
+						})
+					);
 
 					return {
 						postcss: appPostcss,
 					};
-				}
+				},
 			});
 
 			return {
 				exists: false,
 			};
-		}
+		},
 	});
 
 	/**
@@ -318,14 +324,15 @@ export const run = async ({ environment, install, updateCss, updateJavaScript, u
 				if (node.type !== "ImportDeclaration") return;
 
 				/** @type {import("estree").ImportDeclaration} */
-				const importDeclaration = (node);
+				// prettier-ignore
+				const importDeclaration = (node)
 
 				if (typeof importDeclaration.source.value !== "string") return;
-				
+
 				if (!inputs.includes(importDeclaration.source.value)) return;
 
 				appStylesImport = importDeclaration;
-			}
+			},
 		});
 
 		if (!appStylesImport) {
@@ -336,44 +343,53 @@ export const run = async ({ environment, install, updateCss, updateJavaScript, u
 					value: output,
 				},
 				specifiers: [],
-			}
+			};
 			typeScriptEstree.program.body.unshift(appStylesImport);
 		}
 
 		appStylesImport.source.value = output;
 	};
 
-	if (environment.kit) await updateSvelte({
-		path: "/src/routes/__layout.svelte",
+	if (environment.kit)
+		await updateSvelte({
+			path: "/src/routes/__layout.svelte",
 
-		async markup({ posthtml }) {
-			const slot = posthtml.some(node => typeof node !== "string" && typeof node !== "number" && node.tag === "slot");
+			async markup({ posthtml }) {
+				const slot = posthtml.some((node) => typeof node !== "string" && typeof node !== "number" && node.tag === "slot");
 
-			if (!slot) posthtml.push("\n", { tag: "slot" });
+				if (!slot) posthtml.push("\n", { tag: "slot" });
 
-			return {
-				posthtml,
-			};
-		},
+				return {
+					posthtml,
+				};
+			},
 
-		async script({ lang, typeScriptEstree }) {
-			updateOrAddAppStylesImport({ typeScriptEstree, inputs: [globalStylesheetCssRelativePath], output: globalStylesheetPostcssRelativePath });
+			async script({ lang, typeScriptEstree }) {
+				updateOrAddAppStylesImport({
+					typeScriptEstree,
+					inputs: [globalStylesheetCssRelativePath],
+					output: globalStylesheetPostcssRelativePath,
+				});
 
-			return {
-				lang,
-				typeScriptEstree,
-			};
-		},
-	});
+				return {
+					lang,
+					typeScriptEstree,
+				};
+			},
+		});
 	else {
 		await updateJavaScript({
 			path: "/src/main.js",
 			async script({ exists, typeScriptEstree }) {
 				if (!exists) return { exists: false };
 
-				updateOrAddAppStylesImport({ typeScriptEstree, inputs: [globalStylesheetCssRelativeVitePath], output: globalStylesheetPostcssRelativeVitePath });
+				updateOrAddAppStylesImport({
+					typeScriptEstree,
+					inputs: [globalStylesheetCssRelativeVitePath],
+					output: globalStylesheetPostcssRelativeVitePath,
+				});
 				return { typeScriptEstree };
-			}
+			},
 		});
 
 		await updateJavaScript({
@@ -381,16 +397,20 @@ export const run = async ({ environment, install, updateCss, updateJavaScript, u
 			async script({ exists, typeScriptEstree }) {
 				if (!exists) return { exists: false };
 
-				updateOrAddAppStylesImport({ typeScriptEstree, inputs: [globalStylesheetCssRelativeVitePath], output: globalStylesheetPostcssRelativeVitePath });
+				updateOrAddAppStylesImport({
+					typeScriptEstree,
+					inputs: [globalStylesheetCssRelativeVitePath],
+					output: globalStylesheetPostcssRelativeVitePath,
+				});
 				return { typeScriptEstree };
-			}
+			},
 		});
 	}
 
 	await install({ package: "postcss" });
 	await install({ package: "postcss-load-config" });
 	await install({ package: "svelte-preprocess" });
-	
+
 	// TODO: move this to examples only
 	await install({ package: "autoprefixer" });
 	await install({ package: "cssnano" });
