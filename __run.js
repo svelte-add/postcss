@@ -1,7 +1,7 @@
 import { walk } from "estree-walker";
 import { Comment } from "postcss";
 import { newTypeScriptEstreeAst } from "../../ast-io.js";
-import { getConfigObject } from "../../ast-tools.js";
+import { addImport, findImport, getConfigObject, getPreprocessArray, getSveltePreprocessArgs } from "../../ast-tools.js";
 import { globalStylesheetCssPath, globalStylesheetCssRelativePath, globalStylesheetCssRelativeVitePath, globalStylesheetPostcssPath, globalStylesheetPostcssRelativePath, globalStylesheetPostcssRelativeVitePath, postcssConfigCjsPath, stylesHint } from "./stuff.js";
 
 // TODO: only include autoprefixer and cssnano with examples
@@ -36,210 +36,36 @@ module.exports = config;
  * @returns {import("../../ast-io.js").RecastAST}
  */
 const updateSvelteConfig = (svelteConfigAst, cjs) => {
-	/** @type {string | undefined} */
-	let sveltePreprocessImportedAs;
-
-	// Try to find what svelte-preprocess is imported as
-	// (it is different between SvelteKit (`preprocess`) and Vite (`sveltePreprocess`))
-	// https://github.com/svelte-add/postcss/issues/21
-	walk(svelteConfigAst, {
-		enter(node) {
-			if (cjs) {
-				if (node.type !== "VariableDeclarator") return;
-
-				/** @type {import("estree").VariableDeclarator} */
-				// prettier-ignore
-				const declarator = (node)
-
-				if (declarator.id.type !== "Identifier") return;
-				const identifier = declarator.id;
-
-				if (!declarator.init) return;
-				if (declarator.init.type !== "CallExpression") return;
-				const callExpression = declarator.init;
-
-				if (callExpression.callee.type !== "Identifier") return;
-				const callee = callExpression.callee;
-
-				if (callee.name !== "require") return;
-
-				if (callExpression.arguments[0].type !== "Literal") return;
-				if (callExpression.arguments[0].value !== "svelte-preprocess") return;
-
-				sveltePreprocessImportedAs = identifier.name;
-			} else {
-				if (node.type !== "ImportDeclaration") return;
-
-				/** @type {import("estree").ImportDeclaration} */
-				// prettier-ignore
-				const importDeclaration = (node)
-
-				if (importDeclaration.source.value !== "svelte-preprocess") return;
-
-				for (const specifier of importDeclaration.specifiers) {
-					if (specifier.type === "ImportDefaultSpecifier") sveltePreprocessImportedAs = specifier.local.name;
-				}
-			}
-		},
-	});
+	let sveltePreprocessImportedAs = findImport({ cjs, package: "svelte-preprocess", typeScriptEstree: svelteConfigAst });
 
 	// Add a svelte-preprocess import if it's not there
 	if (!sveltePreprocessImportedAs) {
 		sveltePreprocessImportedAs = "preprocess";
-		if (cjs) {
-			/** @type {import("estree").VariableDeclaration} */
-			const requireSveltePreprocessAst = {
-				type: "VariableDeclaration",
-				declarations: [
-					{
-						type: "VariableDeclarator",
-						id: {
-							type: "Identifier",
-							name: sveltePreprocessImportedAs,
-						},
-						init: {
-							type: "CallExpression",
-							// @ts-ignore - I am not sure why this is typed wrongly (?)
-							arguments: [
-								{
-									type: "Literal",
-									value: "svelte-preprocess",
-								},
-							],
-							callee: {
-								type: "Identifier",
-								name: "require",
-							},
-							optional: false,
-						},
-					},
-				],
-				kind: "const",
-			};
-
-			svelteConfigAst.program.body.unshift(requireSveltePreprocessAst);
-		} else {
-			/** @type {import("estree").ImportDeclaration} */
-			const importSveltePreprocessAst = {
-				type: "ImportDeclaration",
-				source: {
-					type: "Literal",
-					value: "svelte-preprocess",
-				},
-				specifiers: [
-					{
-						type: "ImportDefaultSpecifier",
-						local: {
-							type: "Identifier",
-							name: sveltePreprocessImportedAs,
-						},
-					},
-				],
-			};
-
-			svelteConfigAst.program.body.unshift(importSveltePreprocessAst);
-		}
+		addImport({ all: sveltePreprocessImportedAs, cjs, default: sveltePreprocessImportedAs, package: "svelte-preprocess", typeScriptEstree: svelteConfigAst });
 	}
 
-	// Try to find the exported config object
-	/** @type {import("estree").ObjectExpression | undefined} */
 	const configObject = getConfigObject({ cjs, typeScriptEstree: svelteConfigAst });
-
-	// Try to find preprocess config
-	/** @type {import("estree").Property | undefined} */
-	let preprocessConfig;
-	for (const property of configObject.properties) {
-		if (property.type !== "Property") continue;
-		if (property.key.type !== "Identifier") continue;
-		if (property.key.name !== "preprocess") continue;
-
-		preprocessConfig = property;
-	}
-	// Or set it to svelte-preprocess() if it doesn't exist
-	if (!preprocessConfig) {
-		preprocessConfig = {
-			type: "Property",
-			computed: false,
-			key: {
-				type: "Identifier",
-				name: "preprocess",
-			},
-			kind: "init",
-			method: false,
-			shorthand: false,
-			value: {
-				type: "CallExpression",
-				// @ts-ignore - I am not sure why this is typed wrongly (?)
-				arguments: [],
-				callee: {
-					type: "Identifier",
-					name: sveltePreprocessImportedAs,
-				},
-				optional: false,
-			},
-		};
-		configObject.properties.push(preprocessConfig);
-	}
-	// Convert preprocess config from a single svelte-preprocess() function call to an array [svelte-preprocess()]
-	if (preprocessConfig.value.type !== "ArrayExpression") {
-		/** @type {import("estree").ArrayExpression} */
-		const array = {
-			type: "ArrayExpression",
-			elements: [],
-		};
-		if (preprocessConfig.value.type !== "CallExpression") throw new TypeError("preprocess settings were expected to be a function call");
-		/** @type {import("estree").CallExpression} */
-		const preprocessConfigValue = preprocessConfig.value;
-		array.elements.push(preprocessConfigValue);
-		preprocessConfig.value = array;
-	}
+	const preprocessArray = getPreprocessArray({ configObject });
+	const sveltePreprocessArgs = getSveltePreprocessArgs({ preprocessArray, sveltePreprocessImportedAs });
 
 	// Add postcss: true to svelte-preprocess options
-	for (const element of preprocessConfig.value.elements) {
-		if (!element) continue;
-		if (element.type !== "CallExpression") continue;
-		if (element.callee.type !== "Identifier") continue;
-		if (element.callee.name !== sveltePreprocessImportedAs) continue;
-
-		// Initialize the options as {} if none were passed
-		if (element.arguments.length === 0) {
-			/** @type {import("estree").ObjectExpression} */
-			const emptyObject = {
-				type: "ObjectExpression",
-				properties: [],
-			};
-
-			element.arguments.push(emptyObject);
-		}
-
-		if (element.arguments[0].type !== "ObjectExpression") throw new TypeError("that's an unexpected argument to svelte-preprocess");
-		/** @type {import("estree").ObjectExpression} */
-		const sveltePreprocessArgs = element.arguments[0];
-
-		/** @type {import("estree").ObjectExpression} */
-		const objPostcssTrue = {
-			type: "ObjectExpression",
-			properties: [
-				{
-					computed: false,
-					key: {
-						type: "Literal",
-						value: "postcss",
-					},
-					kind: "init",
-					type: "Property",
-					method: false,
-					shorthand: false,
-					value: {
-						type: "Literal",
-						value: true,
-					},
-				},
-			],
-		};
-
-		sveltePreprocessArgs.properties.push(...objPostcssTrue.properties);
-	}
+	/** @type {import("estree").Property} */
+	const postcssTrueProperty = {
+		type: "Property",
+		computed: false,
+		key: {
+			type: "Literal",
+			value: "postcss",
+		},
+		kind: "init",
+		method: false,
+		shorthand: false,
+		value: {
+			type: "Literal",
+			value: true,
+		},
+	};
+	sveltePreprocessArgs.properties.push(postcssTrueProperty);
 
 	return svelteConfigAst;
 };
