@@ -36,17 +36,19 @@ module.exports = config;
  * @returns {import("../../ast-io.js").RecastAST}
  */
 const updateSvelteConfig = (svelteConfigAst, cjs) => {
-	let sveltePreprocessImportedAs = findImport({ cjs, package: "svelte-preprocess", typeScriptEstree: svelteConfigAst });
+	const sveltePreprocessImports = findImport({ cjs, package: "svelte-preprocess", typeScriptEstree: svelteConfigAst });
+	let sveltePreprocessImportedAs = cjs ? sveltePreprocessImports.require : sveltePreprocessImports.default;
 
 	// Add a svelte-preprocess import if it's not there
 	if (!sveltePreprocessImportedAs) {
 		sveltePreprocessImportedAs = "preprocess";
-		addImport({ all: sveltePreprocessImportedAs, cjs, default: sveltePreprocessImportedAs, package: "svelte-preprocess", typeScriptEstree: svelteConfigAst });
+		addImport({ require: sveltePreprocessImportedAs, cjs, default: sveltePreprocessImportedAs, package: "svelte-preprocess", typeScriptEstree: svelteConfigAst });
 	}
 
 	const configObject = getConfigObject({ cjs, typeScriptEstree: svelteConfigAst });
+
 	const preprocessArray = getPreprocessArray({ configObject });
-	const sveltePreprocessArgs = getSveltePreprocessArgs({ preprocessArray, sveltePreprocessImportedAs });
+	const sveltePreprocessArgs = getSveltePreprocessArgs({ preprocessArray, sveltePreprocessImportedAs: "preprocess" });
 
 	// Add postcss: true to svelte-preprocess options
 	/** @type {import("estree").Property} */
@@ -85,29 +87,24 @@ export const run = async ({ environment, install, updateCss, updateJavaScript, u
 		},
 	});
 
-	await updateJavaScript({
-		path: "/svelte.config.js",
-		async script({ exists, typeScriptEstree }) {
-			if (!exists) return { exists: false };
-
-			return {
-				typeScriptEstree: updateSvelteConfig(typeScriptEstree, false),
-			};
-		},
-	});
-
-	await updateJavaScript({
-		path: "/svelte.config.cjs",
-		async script({ exists, typeScriptEstree }) {
-			if (!exists) {
-				if (environment.kit || environment.bundler !== "vite") return { exists: false };
-			}
-
-			return {
-				typeScriptEstree: updateSvelteConfig(typeScriptEstree, true),
-			};
-		},
-	});
+	if (environment.packageType === "module")
+		await updateJavaScript({
+			path: "/svelte.config.js",
+			async script({ typeScriptEstree }) {
+				return {
+					typeScriptEstree: updateSvelteConfig(typeScriptEstree, false),
+				};
+			},
+		});
+	else
+		await updateJavaScript({
+			path: "/svelte.config.cjs",
+			async script({ typeScriptEstree }) {
+				return {
+					typeScriptEstree: updateSvelteConfig(typeScriptEstree, true),
+				};
+			},
+		});
 
 	await updateCss({
 		path: globalStylesheetCssPath,
