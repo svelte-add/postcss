@@ -48,7 +48,7 @@ const updateSvelteConfig = (svelteConfigAst, cjs) => {
 	const configObject = getConfigObject({ cjs, typeScriptEstree: svelteConfigAst });
 
 	const preprocessArray = getPreprocessArray({ configObject });
-	const sveltePreprocessArgs = getSveltePreprocessArgs({ preprocessArray, sveltePreprocessImportedAs: "preprocess" });
+	const sveltePreprocessArgs = getSveltePreprocessArgs({ preprocessArray, sveltePreprocessImportedAs });
 
 	// Add postcss: true to svelte-preprocess options
 	/** @type {import("estree").Property} */
