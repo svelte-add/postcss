@@ -7,7 +7,7 @@ This is an adder for `svelte-add`; you should [read its `README`](https://github
 This adder's codename is `postcss`, and can be used like so:
 
 ```sh
-npx svelte-add postcss
+npx svelte-add@latest postcss
 ```
 
 ### 🏞 Supported environments
