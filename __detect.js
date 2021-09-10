@@ -2,14 +2,14 @@
 export const heuristics = [
 	{
 		description: "`postcss` is installed",
-		async detector({ environment }) {
-			return "postcss" in environment.dependencies || "postcss" in environment.devDependencies;
+		async detector({ folderInfo }) {
+			return "postcss" in folderInfo.dependencies || "postcss" in folderInfo.devDependencies;
 		},
 	},
 	{
 		description: "`postcss-load-config` is installed",
-		async detector({ environment }) {
-			return "postcss-load-config" in environment.dependencies || "postcss-load-config" in environment.devDependencies;
+		async detector({ folderInfo }) {
+			return "postcss-load-config" in folderInfo.dependencies || "postcss-load-config" in folderInfo.devDependencies;
 		},
 	},
 	{
@@ -55,8 +55,8 @@ export const heuristics = [
 	},
 	{
 		description: "The main file (`src/routes/__layout.svelte` for SvelteKit, `src/main.js` or `src/main.ts` for Vite) imports `src/app.postcss`",
-		async detector({ environment, readFile }) {
-			if (environment.kit) {
+		async detector({ folderInfo, readFile }) {
+			if (folderInfo.kit) {
 				const { text } = await readFile({ path: "/src/routes/__layout.svelte" });
 
 				return text.includes("../app.postcss");

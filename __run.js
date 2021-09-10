@@ -73,7 +73,7 @@ const updateSvelteConfig = (svelteConfigAst, cjs) => {
 };
 
 /** @type {import("../../index.js").AdderRun<import("./__metadata.js").Options>} */
-export const run = async ({ environment, install, updateCss, updateJavaScript, updateSvelte }) => {
+export const run = async ({ folderInfo, install, updateCss, updateJavaScript, updateSvelte }) => {
 	await updateJavaScript({
 		path: postcssConfigCjsPath,
 		async script({ typeScriptEstree }) {
@@ -87,7 +87,7 @@ export const run = async ({ environment, install, updateCss, updateJavaScript, u
 		},
 	});
 
-	if (environment.packageType === "module")
+	if (folderInfo.packageType === "module")
 		await updateJavaScript({
 			path: "/svelte.config.js",
 			async script({ typeScriptEstree }) {
@@ -173,7 +173,7 @@ export const run = async ({ environment, install, updateCss, updateJavaScript, u
 		appStylesImport.source.value = output;
 	};
 
-	if (environment.kit)
+	if (folderInfo.kit)
 		await updateSvelte({
 			path: "/src/routes/__layout.svelte",
 
