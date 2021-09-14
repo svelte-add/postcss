@@ -3,13 +3,13 @@ export const heuristics = [
 	{
 		description: "`postcss` is installed",
 		async detector({ folderInfo }) {
-			return "postcss" in folderInfo.dependencies || "postcss" in folderInfo.devDependencies;
+			return "postcss" in folderInfo.allDependencies;
 		},
 	},
 	{
 		description: "`postcss-load-config` is installed",
 		async detector({ folderInfo }) {
-			return "postcss-load-config" in folderInfo.dependencies || "postcss-load-config" in folderInfo.devDependencies;
+			return "postcss-load-config" in folderInfo.allDependencies;
 		},
 	},
 	{
