@@ -21,17 +21,13 @@ export const heuristics = [
 			/** @param {string} text */
 			const preprocessIsProbablySetup = (text) => {
 				if (!text.includes("svelte-preprocess")) return false;
-				if (!text.includes("preprocess:")) return false;
-				if (!text.includes("postcss: true") && !text.includes('"postcss": true') && !text.includes("'postcss': true")) return false;
+				if (!text.includes("postcss")) return false;
 
 				return true;
 			};
 
-			if (js.exists) {
-				return preprocessIsProbablySetup(js.text);
-			} else if (cjs.exists) {
-				return preprocessIsProbablySetup(cjs.text);
-			}
+			if (js.exists) return preprocessIsProbablySetup(js.text);
+			else if (cjs.exists) return preprocessIsProbablySetup(cjs.text);
 
 			return false;
 		},
