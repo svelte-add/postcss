@@ -1,3 +1,5 @@
+import { extension } from "./stuff.js";
+
 /** @type {import("../..").Heuristic[]} */
 export const heuristics = [
 	{
@@ -42,9 +44,9 @@ export const heuristics = [
 		},
 	},
 	{
-		description: "`src/app.postcss` exists",
+		description: `\`src/app.${extension}\` exists`,
 		async detector({ readFile }) {
-			const postcss = await readFile({ path: "/src/app.postcss" });
+			const postcss = await readFile({ path: `/src/app.${extension}` });
 
 			return postcss.exists;
 		},
@@ -55,14 +57,14 @@ export const heuristics = [
 			if (folderInfo.kit) {
 				const { text } = await readFile({ path: "/src/routes/__layout.svelte" });
 
-				return text.includes("../app.postcss");
+				return text.includes(`../app.${extension}`);
 			}
 
 			const ts = await readFile({ path: "/src/main.ts" });
-			if (ts.exists) return ts.text.includes("./app.postcss");
+			if (ts.exists) return ts.text.includes(`./app.${extension}`);
 
 			const js = await readFile({ path: "/src/main.js" });
-			return js.text.includes("./app.postcss");
+			return js.text.includes(`./app.${extension}`);
 		},
 	},
 ];
