@@ -3,12 +3,6 @@ import { extension } from "./stuff.js";
 /** @type {import("../..").Heuristic[]} */
 export const heuristics = [
 	{
-		description: "`postcss` is installed",
-		async detector({ folderInfo }) {
-			return "postcss" in folderInfo.allDependencies;
-		},
-	},
-	{
 		description: "`svelte-preprocess` reads PostCSS config implicitly in `svelte.config.js`",
 		async detector({ readFile }) {
 			const js = await readFile({ path: "/svelte.config.js" });
