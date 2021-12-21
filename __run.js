@@ -1,9 +1,8 @@
 import { setupStyleLanguage } from "../../adder-tools.js";
 import { newTypeScriptEstreeAst } from "../../ast-io.js";
-import { setPropertyValue } from "../../ast-tools.js";
 import { extension, postcssConfigCjsPath, stylesHint } from "./stuff.js";
 
-// TODO: only include autoprefixer and cssnano with examples
+// TODO: only include autoprefixer with examples
 // or should it work like that??
 // I want `postcss` without options to produce an empty plugins list
 // but it still needs to be easy to get these plugins added
@@ -11,18 +10,10 @@ import { extension, postcssConfigCjsPath, stylesHint } from "./stuff.js";
 // is there a good way to handle that?
 const postcssConfig = `
 const autoprefixer = require("autoprefixer");
-const cssnano = require("cssnano");
-
-const mode = process.env.NODE_ENV;
-const dev = mode === "development";
 
 const config = {
 	plugins: [
 		autoprefixer(),
-
-		!dev && cssnano({
-			preset: "default",
-		}),
 	],
 };
 
@@ -34,16 +25,7 @@ export const run = async ({ folderInfo, install, updateCss, updateJavaScript, up
 	await setupStyleLanguage({
 		extension,
 		folderInfo,
-		mutateSveltePreprocessArgs(sveltePreprocessArgs) {
-			setPropertyValue({
-				object: sveltePreprocessArgs,
-				property: "postcss",
-				value: {
-					type: "Literal",
-					value: true,
-				},
-			});
-		},
+		mutateSveltePreprocessArgs() {},
 		stylesHint,
 		updateCss,
 		updateJavaScript,
@@ -63,11 +45,8 @@ export const run = async ({ folderInfo, install, updateCss, updateJavaScript, up
 		},
 	});
 
-	await install({ package: "postcss" });
-	await install({ package: "postcss-load-config" });
 	await install({ package: "svelte-preprocess" });
 
 	// TODO: move this to examples only
 	await install({ package: "autoprefixer" });
-	await install({ package: "cssnano" });
 };
