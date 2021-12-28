@@ -28,6 +28,4 @@ After the adder runs,
 
   This is your global stylesheet because it will be active on every page of your site.
 
-- All your CSS will be minified for production with CSSNano.
-
 - You can install more [PostCSS plugins](https://github.com/postcss/postcss/blob/main/docs/plugins.md) and configure them in the `postcss.config.cjs` file.
