@@ -1,27 +1,48 @@
 import { setupStyleLanguage } from "../../adder-tools.js";
-import { newTypeScriptEstreeAst } from "../../ast-io.js";
+import { addImport, findImport, getConfigExpression, setDefault } from "../../ast-tools.js";
 import { extension, postcssConfigCjsPath, stylesHint } from "./stuff.js";
 
-// TODO: only include autoprefixer with examples
-// or should it work like that??
-// I want `postcss` without options to produce an empty plugins list
-// but it still needs to be easy to get these plugins added
-// (making them their own adders is probably annoying)
-// is there a good way to handle that?
-const postcssConfig = `
-const autoprefixer = require("autoprefixer");
+/**
+ * @param {import("../../ast-io.js").RecastAST} postcssConfigAst
+ * @param {boolean} autoprefixer
+ * @returns {import("../../ast-io.js").RecastAST}
+ */
+const updatePostcssConfig = (postcssConfigAst, autoprefixer) => {
+	const configObject = getConfigExpression({
+		cjs: true,
+		typeScriptEstree: postcssConfigAst,
+	});
 
-const config = {
-	plugins: [
-		autoprefixer(),
-	],
+	if (configObject.type !== "ObjectExpression") throw new Error("PostCSS config must be an object");
+
+	const pluginsList = setDefault({
+		default: /** @type {import("estree").ArrayExpression} */ ({
+			type: "ArrayExpression",
+			elements: [],
+		}),
+		object: configObject,
+		property: "plugins",
+	});
+	if (pluginsList.type !== "ArrayExpression") throw new Error("`plugins` in PostCSS config must be an array");
+
+	if (autoprefixer) {
+		let autoprefixerImportedAs = findImport({ cjs: true, package: "autoprefixer", typeScriptEstree: postcssConfigAst }).require;
+		// Add an Autoprefixer import if it's not there
+		if (!autoprefixerImportedAs) {
+			autoprefixerImportedAs = "autoprefixer";
+			addImport({ require: autoprefixerImportedAs, cjs: true, package: "autoprefixer", typeScriptEstree: postcssConfigAst });
+		}
+		pluginsList.elements.push({
+			type: "Identifier",
+			name: autoprefixerImportedAs,
+		});
+	}
+
+	return postcssConfigAst;
 };
 
-module.exports = config;
-`;
-
 /** @type {import("../../index.js").AdderRun<import("./__metadata.js").Options>} */
-export const run = async ({ folderInfo, install, updateCss, updateJavaScript, updateSvelte }) => {
+export const run = async ({ folderInfo, install, options, updateCss, updateJavaScript, updateSvelte }) => {
 	await setupStyleLanguage({
 		extension,
 		folderInfo,
@@ -35,18 +56,12 @@ export const run = async ({ folderInfo, install, updateCss, updateJavaScript, up
 	await updateJavaScript({
 		path: postcssConfigCjsPath,
 		async script({ typeScriptEstree }) {
-			const postcssConfigAst = newTypeScriptEstreeAst(postcssConfig);
-
-			typeScriptEstree.program.body = postcssConfigAst.program.body;
-
 			return {
-				typeScriptEstree,
+				typeScriptEstree: updatePostcssConfig(typeScriptEstree, options.autoprefixer),
 			};
 		},
 	});
 
 	await install({ package: "svelte-preprocess" });
-
-	// TODO: move this to examples only
-	await install({ package: "autoprefixer" });
+	if (options.autoprefixer) await install({ package: "autoprefixer" });
 };

@@ -16,7 +16,7 @@ This adder supports SvelteKit and Vite-powered Svelte apps (all the environments
 
 ### ⚙️ Options
 
-This adder doesn't take any options of its own.
+- `autoprefixer` (default `true`): whether or not to install and set up [Autoprefixer](https://github.com/postcss/autoprefixer).
 
 ## 🛠 Using PostCSS
 
