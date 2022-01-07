@@ -63,5 +63,6 @@ export const run = async ({ folderInfo, install, options, updateCss, updateJavaS
 	});
 
 	await install({ package: "svelte-preprocess" });
+	await install({ package: "postcss" });
 	if (options.autoprefixer) await install({ package: "autoprefixer" });
 };
