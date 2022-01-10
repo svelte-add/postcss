@@ -41,7 +41,7 @@ const updatePostcssConfig = (postcssConfigAst, autoprefixer) => {
 	return postcssConfigAst;
 };
 
-/** @type {import("../../index.js").AdderRun<import("./__metadata.js").Options>} */
+/** @type {import("../..").AdderRun<import("./__info.js").Options>} */
 export const run = async ({ folderInfo, install, options, updateCss, updateJavaScript, updateSvelte }) => {
 	await setupStyleLanguage({
 		extension,
