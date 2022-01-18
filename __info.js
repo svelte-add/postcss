@@ -2,6 +2,11 @@ import { extension } from "./stuff.js";
 
 export const name = "PostCSS";
 
+/** @type {import("../..").Gatekeep} */
+export const gatekeep = async () => {
+	return { able: true };
+};
+
 /** @typedef {{ autoprefixer: boolean }} Options */
 
 /** @type {import("../..").AdderOptions<Options>} */
