@@ -1,5 +1,5 @@
 import { setupStyleLanguage } from "../../adder-tools.js";
-import { addImport, findImport, getConfigExpression, setDefault } from "../../ast-tools.js";
+import { addImport, findImport, getConfigExpression, setDefault, setPropertyValue } from "../../ast-tools.js";
 import { extension, postcssConfigCjsPath, stylesHint } from "./stuff.js";
 
 /**
@@ -46,7 +46,16 @@ export const run = async ({ folderInfo, install, options, updateCss, updateJavaS
 	await setupStyleLanguage({
 		extension,
 		folderInfo,
-		mutateSveltePreprocessArgs() {},
+		mutateSveltePreprocessArgs(sveltePreprocessArgs) {
+			setPropertyValue({
+				object: sveltePreprocessArgs,
+				property: "postcss",
+				value: {
+					type: "Literal",
+					value: true,
+				},
+			});
+		},
 		stylesHint,
 		updateCss,
 		updateJavaScript,
@@ -62,7 +71,8 @@ export const run = async ({ folderInfo, install, options, updateCss, updateJavaS
 		},
 	});
 
-	await install({ package: "svelte-preprocess" });
 	await install({ package: "postcss" });
+	await install({ package: "postcss-load-config" });
+	await install({ package: "svelte-preprocess" });
 	if (options.autoprefixer) await install({ package: "autoprefixer" });
 };

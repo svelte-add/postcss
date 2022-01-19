@@ -21,6 +21,18 @@ export const options = {
 /** @type {import("../..").Heuristic[]} */
 export const heuristics = [
 	{
+		description: "`postcss` is installed",
+		async detector({ folderInfo }) {
+			return "postcss" in folderInfo.allDependencies;
+		},
+	},
+	{
+		description: "`postcss-load-config` is installed",
+		async detector({ folderInfo }) {
+			return "postcss-load-config" in folderInfo.allDependencies;
+		},
+	},
+	{
 		description: "`svelte-preprocess` reads PostCSS config implicitly in `svelte.config.js`",
 		async detector({ readFile }) {
 			const js = await readFile({ path: "/svelte.config.js" });
