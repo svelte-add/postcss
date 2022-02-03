@@ -1,5 +1,5 @@
 import { setupStyleLanguage } from "../../adder-tools.js";
-import { addImport, findImport, getConfigExpression, setDefault, setPropertyValue } from "../../ast-tools.js";
+import { addImport, findImport, setDefaultDefaultExport, setDefault, setPropertyValue } from "../../ast-tools.js";
 import { extension, postcssConfigCjsPath, stylesHint } from "./stuff.js";
 
 /**
@@ -8,8 +8,12 @@ import { extension, postcssConfigCjsPath, stylesHint } from "./stuff.js";
  * @returns {import("../../ast-io.js").RecastAST}
  */
 const updatePostcssConfig = (postcssConfigAst, autoprefixer) => {
-	const configObject = getConfigExpression({
+	const configObject = setDefaultDefaultExport({
 		cjs: true,
+		defaultValue: {
+			type: "ObjectExpression",
+			properties: [],
+		},
 		typeScriptEstree: postcssConfigAst,
 	});
 
