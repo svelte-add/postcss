@@ -2,6 +2,10 @@ import { extension } from "./stuff.js";
 
 export const name = "PostCSS";
 
+export const emoji = "🔺";
+
+export const usageMarkdown = ['You can write PostCSS syntax in the `style lang="postcss"` blocks in Svelte files.', "You can write PostCSS syntax in the `src/app.css` file.\n\n  This is your global stylesheet because it will be active on every page of your site.", "You can install more [PostCSS plugins](https://github.com/postcss/postcss/blob/main/docs/plugins.md) and configure them in the `postcss.config.cjs` file."];
+
 /** @type {import("../..").Gatekeep} */
 export const gatekeep = async () => {
 	return { able: true };
@@ -14,6 +18,7 @@ export const options = {
 	autoprefixer: {
 		context: "https://github.com/postcss/autoprefixer",
 		default: true,
+		descriptionMarkdown: "whether or not to install and set up [Autoprefixer](https://github.com/postcss/autoprefixer).",
 		question: "Do you want to use Autoprefixer?",
 	},
 };
