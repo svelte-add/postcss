@@ -27,19 +27,31 @@ const updatePostcssConfig = (postcssConfigAst, autoprefixer) => {
 		object: configObject,
 		property: "plugins",
 	});
-	if (pluginsList.type !== "ArrayExpression") throw new Error("`plugins` in PostCSS config must be an array");
 
-	if (autoprefixer) {
-		let autoprefixerImportedAs = findImport({ cjs: true, package: "autoprefixer", typeScriptEstree: postcssConfigAst }).require;
-		// Add an Autoprefixer import if it's not there
-		if (!autoprefixerImportedAs) {
-			autoprefixerImportedAs = "autoprefixer";
-			addImport({ require: autoprefixerImportedAs, cjs: true, package: "autoprefixer", typeScriptEstree: postcssConfigAst });
+	if (pluginsList.type === "ArrayExpression") {
+		if (autoprefixer) {
+			let autoprefixerImportedAs = findImport({ cjs: true, package: "autoprefixer", typeScriptEstree: postcssConfigAst }).require;
+			// Add an Autoprefixer import if it's not there
+			if (!autoprefixerImportedAs) {
+				autoprefixerImportedAs = "autoprefixer";
+				addImport({ require: autoprefixerImportedAs, cjs: true, package: "autoprefixer", typeScriptEstree: postcssConfigAst });
+			}
+			pluginsList.elements.push({
+				type: "Identifier",
+				name: autoprefixerImportedAs,
+			});
 		}
-		pluginsList.elements.push({
-			type: "Identifier",
-			name: autoprefixerImportedAs,
+	} else if (pluginsList.type === "ObjectExpression") {
+		setDefault({
+			default: {
+				type: "ObjectExpression",
+				properties: [],
+			},
+			object: pluginsList,
+			property: "autoprefixer",
 		});
+	} else {
+		throw new Error("`plugins` in PostCSS config must be an array or object");
 	}
 
 	return postcssConfigAst;
