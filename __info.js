@@ -74,10 +74,10 @@ export const heuristics = [
 		},
 	},
 	{
-		description: "The main file (`src/routes/__layout.svelte` for SvelteKit, `src/main.js` or `src/main.ts` for Vite) imports `src/app.css`",
+		description: "The main file (`src/routes/+layout.svelte` for SvelteKit, `src/main.js` or `src/main.ts` for Vite) imports `src/app.css`",
 		async detector({ folderInfo, readFile }) {
 			if (folderInfo.kit) {
-				const { text } = await readFile({ path: "/src/routes/__layout.svelte" });
+				const { text } = await readFile({ path: "/src/routes/+layout.svelte" });
 
 				return text.includes(`../app.${extension}`);
 			}
