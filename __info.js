@@ -4,7 +4,7 @@ export const name = "PostCSS";
 
 export const emoji = "🔺";
 
-export const usageMarkdown = ['You can write PostCSS syntax in the `style lang="postcss"` blocks in Svelte files.', "You can write PostCSS syntax in the `src/app.css` file.\n\n  This is your global stylesheet because it will be active on every page of your site.", "You can install more [PostCSS plugins](https://github.com/postcss/postcss/blob/main/docs/plugins.md) and configure them in the `postcss.config.cjs` file."];
+export const usageMarkdown = ['You can write PostCSS syntax in the `style lang="postcss"` blocks in Svelte files.', "You can write PostCSS syntax in the `src/app.postcss` file.\n\n  This is your global stylesheet because it will be active on every page of your site.", "You can install more [PostCSS plugins](https://github.com/postcss/postcss/blob/main/docs/plugins.md) and configure them in the `postcss.config.cjs` file."];
 
 /** @type {import("../..").Gatekeep} */
 export const gatekeep = async () => {
@@ -74,7 +74,7 @@ export const heuristics = [
 		},
 	},
 	{
-		description: "The main file (`src/routes/+layout.svelte` for SvelteKit, `src/main.js` or `src/main.ts` for Vite) imports `src/app.css`",
+		description: `The main file (\`src/routes/+layout.svelte\` for SvelteKit, \`src/main.js\` or \`src/main.ts\` for Vite) imports \`src/app.${extension}\``,
 		async detector({ folderInfo, readFile }) {
 			if (folderInfo.kit) {
 				const { text } = await readFile({ path: "/src/routes/+layout.svelte" });
