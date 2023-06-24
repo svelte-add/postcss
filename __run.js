@@ -1,5 +1,5 @@
 import { setupStyleLanguage } from "../../adder-tools.js";
-import { addImport, findImport, setDefaultDefaultExport, setDefault, setPropertyValue } from "../../ast-tools.js";
+import { addImport, findImport, setDefaultDefaultExport, setDefault } from "../../ast-tools.js";
 import { extension, postcssConfigCjsPath, stylesHint } from "./stuff.js";
 
 /**
