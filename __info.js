@@ -38,14 +38,14 @@ export const heuristics = [
 		},
 	},
 	{
-		description: "`svelte-preprocess` reads PostCSS config implicitly in `svelte.config.js`",
+		description: "`vitePreprocess` reads PostCSS config implicitly in `svelte.config.js`",
 		async detector({ readFile }) {
 			const js = await readFile({ path: "/svelte.config.js" });
 			const cjs = await readFile({ path: "/svelte.config.cjs" });
 
 			/** @param {string} text */
 			const preprocessIsProbablySetup = (text) => {
-				if (!text.includes("svelte-preprocess")) return false;
+				if (!text.includes("vitePreprocess")) return false;
 
 				return true;
 			};

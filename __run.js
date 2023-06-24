@@ -62,16 +62,7 @@ export const run = async ({ folderInfo, install, options, updateCss, updateJavaS
 	await setupStyleLanguage({
 		extension,
 		folderInfo,
-		mutateSveltePreprocessArgs(sveltePreprocessArgs) {
-			setPropertyValue({
-				object: sveltePreprocessArgs,
-				property: "postcss",
-				value: {
-					type: "Literal",
-					value: true,
-				},
-			});
-		},
+		mutateSveltePreprocessArgs() {},
 		stylesHint,
 		updateCss,
 		updateJavaScript,
@@ -89,6 +80,6 @@ export const run = async ({ folderInfo, install, options, updateCss, updateJavaS
 
 	await install({ package: "postcss" });
 	await install({ package: "postcss-load-config" });
-	await install({ package: "svelte-preprocess" });
+	await install({ package: "@sveltejs/vite-plugin-svelte" });
 	if (options.autoprefixer) await install({ package: "autoprefixer" });
 };
