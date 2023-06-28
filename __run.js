@@ -80,6 +80,8 @@ export const run = async ({ folderInfo, install, options, updateCss, updateJavaS
 
 	await install({ package: "postcss" });
 	await install({ package: "postcss-load-config" });
-	await install({ package: "@sveltejs/vite-plugin-svelte" });
+
+	if (!folderInfo.kit) await install({ package: "@sveltejs/vite-plugin-svelte" });
+
 	if (options.autoprefixer) await install({ package: "autoprefixer" });
 };
