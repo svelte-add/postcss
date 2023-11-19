@@ -4,7 +4,7 @@ export const name = "PostCSS";
 
 export const emoji = "🔺";
 
-export const usageMarkdown = ['You can write PostCSS syntax in the `style lang="postcss"` blocks in Svelte files.', "You can write PostCSS syntax in the `src/app.postcss` file.\n\n  This is your global stylesheet because it will be active on every page of your site.", "You can install more [PostCSS plugins](https://github.com/postcss/postcss/blob/main/docs/plugins.md) and configure them in the `postcss.config.cjs` file."];
+export const usageMarkdown = ['You can write PostCSS syntax in the `style lang="postcss"` blocks in Svelte files.', "You can write PostCSS syntax in the `src/app.pcss` file.\n\n  This is your global stylesheet because it will be active on every page of your site.", "You can install more [PostCSS plugins](https://github.com/postcss/postcss/blob/main/docs/plugins.md) and configure them in the `postcss.config.cjs` file."];
 
 /** @type {import("../..").Gatekeep} */
 export const gatekeep = async () => {

@@ -31,7 +31,7 @@ After the adder runs,
 
 - You can write PostCSS syntax in the `style lang="postcss"` blocks in Svelte files.
 
-- You can write PostCSS syntax in the `src/app.postcss` file.
+- You can write PostCSS syntax in the `src/app.pcss` file.
 
   This is your global stylesheet because it will be active on every page of your site.
 
